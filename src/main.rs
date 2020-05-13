@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use async_trait::async_trait;
 use cucumber::{after, before, CucumberBuilder, Steps, StepsBuilder, TestFuture};
 
