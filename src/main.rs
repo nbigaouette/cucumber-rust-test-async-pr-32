@@ -71,7 +71,6 @@ pub fn steps() -> Steps<MyWorld> {
         .then_async("Then Number 1", |world, _step| {
             TestFuture::new(async move {
                 let mut world = world.write().unwrap();
-                panic!("This is expected");
             })
         });
 
