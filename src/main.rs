@@ -51,17 +51,44 @@ pub fn steps() -> Steps<MyWorld> {
 
     builder
         .given_async("Given Number 1", |world, _step| {
+            let world = world.clone();
             TestFuture::new(async move {
                 let mut world = world.write().unwrap();
                 world.foo = "bla".into()
             })
         })
-        .given_async("Given Number 1 (panicking)", |world, _step| {
+        // *****************************************
+        .given_async("Example from GitHub comment", |world, _step| {
+            let world = world.to_owned();
             TestFuture::new(async move {
-                let mut world = world.write().unwrap();
-                world.test_async_fn().await
+                let world = world; // world is owned now
             })
         })
+        .given_async("Modified example from GitHub comment", |world, _step| {
+            let world = world.to_owned();
+            TestFuture::new(async move {
+                let world = world; // world is owned now
+                let mut world = world.write().unwrap();
+                assert_eq!(world.foo, "bla");
+                // Uncommenting this will prevent compilation with: `&mut MyWorld` may not be safely transferred across an unwind boundary
+                // world.test_async_fn().await
+            })
+        })
+        // *****************************************
+        .given_async("This one compiles fines", |world, _step| {
+            TestFuture::new(async move {
+                let mut world = world.write().unwrap();
+                assert_eq!(world.foo, "bla")
+            })
+        })
+        // // Fails to compile with: `&mut MyWorld` may not be safely transferred across an unwind boundary
+        // .given_async("This one fails to compile", |world, _step| {
+        //     TestFuture::new(async move {
+        //         let mut world = world.write().unwrap();
+        //         assert_eq!(world.foo, "bla");
+        //         world.test_async_fn().await
+        //     })
+        // })
         .when_async("When Number 1", |world, _step| {
             TestFuture::new(async move {
                 let mut world = world.write().unwrap();
